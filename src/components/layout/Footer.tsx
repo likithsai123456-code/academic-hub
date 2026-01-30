@@ -44,8 +44,8 @@ export function Footer() {
                 </a>
               </li>
               <li>
-                <a href="#" className="text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors">
-                  Pricing
+                <a href="#how-it-works" className="text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors">
+                  How It Works
                 </a>
               </li>
               <li>
