@@ -15,6 +15,7 @@ import {
   ChevronRight,
   Calendar,
 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const stats = [
   {
@@ -110,8 +111,10 @@ const assignments = [
 ];
 
 export default function FacultyDashboard() {
+  const { user } = useAuth();
+
   return (
-    <DashboardLayout role="faculty" userName="Dr. Robert Smith">
+    <DashboardLayout role="faculty" userName={user?.name}>
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>

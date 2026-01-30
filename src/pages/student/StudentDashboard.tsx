@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { FileText, Upload, CheckSquare, Clock, Calendar, TrendingUp } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const stats = [
   {
@@ -91,11 +92,14 @@ const upcomingDeadlines = [
 ];
 
 export default function StudentDashboard() {
+  const { user } = useAuth();
+  const firstName = user?.name?.split(" ")[0] || "Student";
+
   return (
-    <DashboardLayout role="student" userName="Alex Johnson">
+    <DashboardLayout role="student" userName={user?.name}>
       {/* Page Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Welcome back, Alex!</h1>
+        <h1 className="text-3xl font-bold mb-2">Welcome back, {firstName}!</h1>
         <p className="text-muted-foreground">
           Here's an overview of your academic progress and upcoming assignments.
         </p>
