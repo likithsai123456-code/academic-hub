@@ -112,7 +112,7 @@ export default function LandingPage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up" style={{ animationDelay: "200ms" }}>
               <Button size="xl" asChild>
                 <Link to="/register">
-                  Get Started Free
+                  Get Started
                   <ArrowRight className="h-5 w-5 ml-2" />
                 </Link>
               </Button>
@@ -317,17 +317,17 @@ export default function LandingPage() {
                 <h2 className="mb-4">Ready to Transform Your Institution?</h2>
                 <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
                   Join hundreds of institutions already using EduPortal to streamline
-                  their academic workflows. Start your free trial today.
+                  their academic workflows. Get started today.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Button size="lg" asChild>
                     <Link to="/register">
-                      Create Free Account
+                      Create Account
                       <ArrowRight className="h-5 w-5 ml-2" />
                     </Link>
                   </Button>
                   <Button size="lg" variant="outline" asChild>
-                    <a href="mailto:contact@eduportal.com">Contact Sales</a>
+                    <a href="mailto:contact@eduportal.com">Contact Us</a>
                   </Button>
                 </div>
               </div>
