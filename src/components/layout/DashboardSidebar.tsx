@@ -1,5 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   GraduationCap,
   LayoutDashboard,
@@ -53,6 +54,7 @@ const adminNavItems = [
 export function DashboardSidebar({ role }: SidebarProps) {
   const location = useLocation();
   const navigate = useNavigate();
+  const { logout } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
 
   const navItems =
@@ -66,6 +68,7 @@ export function DashboardSidebar({ role }: SidebarProps) {
     role === "student" ? "Student" : role === "faculty" ? "Faculty" : "Administrator";
 
   const handleLogout = () => {
+    logout();
     navigate("/login");
   };
 

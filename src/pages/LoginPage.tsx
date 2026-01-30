@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { GraduationCap, Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -14,6 +15,7 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,13 +25,19 @@ export default function LoginPage() {
     setTimeout(() => {
       setIsLoading(false);
       
+      let role: "student" | "faculty" | "admin" = "student";
+      let redirectPath = "/student";
+      
       if (email.includes("admin")) {
-        navigate("/admin");
+        role = "admin";
+        redirectPath = "/admin";
       } else if (email.includes("faculty")) {
-        navigate("/faculty");
-      } else {
-        navigate("/student");
+        role = "faculty";
+        redirectPath = "/faculty";
       }
+      
+      login(email, role);
+      navigate(redirectPath);
       
       toast({
         title: "Welcome back!",

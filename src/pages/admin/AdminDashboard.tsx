@@ -18,6 +18,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { useAuth } from "@/contexts/AuthContext";
 
 const stats = [
   {
@@ -72,8 +73,10 @@ const systemAlerts = [
 ];
 
 export default function AdminDashboard() {
+  const { user } = useAuth();
+
   return (
-    <DashboardLayout role="admin" userName="Sarah Admin">
+    <DashboardLayout role="admin" userName={user?.name}>
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
