@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,25 +13,72 @@ import {
 } from "@/components/ui/select";
 import { GraduationCap, Mail, Lock, User, Eye, EyeOff, ArrowRight, Building } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+
+interface Section {
+  id: string;
+  name: string;
+}
+
+interface Year {
+  id: string;
+  name: string;
+}
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
+    name: "",
     email: "",
     password: "",
     confirmPassword: "",
     role: "",
-    department: "",
+    sectionId: "",
+    yearId: "",
   });
+  const [sections, setSections] = useState<Section[]>([]);
+  const [years, setYears] = useState<Year[]>([]);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  useEffect(() => {
+    // Fetch sections and years for selection
+    const fetchData = async () => {
+      const [sectionsRes, yearsRes] = await Promise.all([
+        supabase.from("sections").select("id, name").order("name"),
+        supabase.from("years").select("id, name").order("name"),
+      ]);
+
+      if (sectionsRes.data) setSections(sectionsRes.data);
+      if (yearsRes.data) setYears(yearsRes.data);
+    };
+
+    fetchData();
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Validation
+    if (!formData.name.trim()) {
+      toast({
+        title: "Name required",
+        description: "Please enter your name.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      toast({
+        title: "Password too short",
+        description: "Password must be at least 6 characters.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (formData.password !== formData.confirmPassword) {
       toast({
         title: "Passwords don't match",
@@ -41,17 +88,92 @@ export default function RegisterPage() {
       return;
     }
 
+    if (!formData.role) {
+      toast({
+        title: "Role required",
+        description: "Please select your role.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!formData.sectionId || !formData.yearId) {
+      toast({
+        title: "Section and Year required",
+        description: "Please select your section and year.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
 
-    // Demo registration
-    setTimeout(() => {
-      setIsLoading(false);
-      toast({
-        title: "Account created!",
-        description: "Your account has been created successfully. Please log in.",
+    try {
+      // Sign up with Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          emailRedirectTo: window.location.origin,
+        },
       });
-      navigate("/login");
-    }, 1500);
+
+      if (authError) {
+        toast({
+          title: "Registration failed",
+          description: authError.message,
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      if (authData.user) {
+        // Create profile
+        const { error: profileError } = await supabase.from("profiles").insert({
+          user_id: authData.user.id,
+          name: formData.name.trim(),
+          section_id: formData.sectionId,
+          year_id: formData.yearId,
+        });
+
+        if (profileError) {
+          console.error("Profile creation error:", profileError);
+          toast({
+            title: "Profile creation failed",
+            description: "Account created but profile setup failed. Please contact support.",
+            variant: "destructive",
+          });
+          setIsLoading(false);
+          return;
+        }
+
+        // Create user role
+        const { error: roleError } = await supabase.from("user_roles").insert({
+          user_id: authData.user.id,
+          role: formData.role as "student" | "faculty" | "admin",
+        });
+
+        if (roleError) {
+          console.error("Role creation error:", roleError);
+        }
+
+        toast({
+          title: "Account created!",
+          description: "Please check your email to verify your account, then log in.",
+        });
+        navigate("/login");
+      }
+    } catch (error) {
+      console.error("Registration error:", error);
+      toast({
+        title: "Registration failed",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
+    }
+
+    setIsLoading(false);
   };
 
   const updateFormData = (field: string, value: string) => {
@@ -126,28 +248,16 @@ export default function RegisterPage() {
             </CardHeader>
             <CardContent className="px-0">
               <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="firstName">First Name</Label>
-                    <div className="relative">
-                      <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                      <Input
-                        id="firstName"
-                        placeholder="John"
-                        value={formData.firstName}
-                        onChange={(e) => updateFormData("firstName", e.target.value)}
-                        className="pl-10"
-                        required
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="lastName">Last Name</Label>
+                <div className="space-y-2">
+                  <Label htmlFor="name">Full Name</Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                     <Input
-                      id="lastName"
-                      placeholder="Doe"
-                      value={formData.lastName}
-                      onChange={(e) => updateFormData("lastName", e.target.value)}
+                      id="name"
+                      placeholder="John Doe"
+                      value={formData.name}
+                      onChange={(e) => updateFormData("name", e.target.value)}
+                      className="pl-10"
                       required
                     />
                   </div>
@@ -174,7 +284,6 @@ export default function RegisterPage() {
                   <Select
                     value={formData.role}
                     onValueChange={(value) => updateFormData("role", value)}
-                    required
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select your role" />
@@ -186,25 +295,43 @@ export default function RegisterPage() {
                   </Select>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="department">Department</Label>
-                  <Select
-                    value={formData.department}
-                    onValueChange={(value) => updateFormData("department", value)}
-                    required
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select department" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="cs">Computer Science</SelectItem>
-                      <SelectItem value="ee">Electrical Engineering</SelectItem>
-                      <SelectItem value="me">Mechanical Engineering</SelectItem>
-                      <SelectItem value="ce">Civil Engineering</SelectItem>
-                      <SelectItem value="math">Mathematics</SelectItem>
-                      <SelectItem value="physics">Physics</SelectItem>
-                    </SelectContent>
-                  </Select>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="section">Section</Label>
+                    <Select
+                      value={formData.sectionId}
+                      onValueChange={(value) => updateFormData("sectionId", value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select section" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {sections.map((section) => (
+                          <SelectItem key={section.id} value={section.id}>
+                            {section.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="year">Year</Label>
+                    <Select
+                      value={formData.yearId}
+                      onValueChange={(value) => updateFormData("yearId", value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select year" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {years.map((year) => (
+                          <SelectItem key={year.id} value={year.id}>
+                            {year.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
 
                 <div className="space-y-2">

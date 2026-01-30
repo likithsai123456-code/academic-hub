@@ -19,31 +19,47 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!email.trim()) {
+      toast({
+        title: "Email required",
+        description: "Please enter your email address.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!password) {
+      toast({
+        title: "Password required",
+        description: "Please enter your password.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
 
-    // Demo login - redirect based on email pattern
-    setTimeout(() => {
+    const { error } = await login(email, password);
+
+    if (error) {
       setIsLoading(false);
-      
-      let role: "student" | "faculty" | "admin" = "student";
-      let redirectPath = "/student";
-      
-      if (email.includes("admin")) {
-        role = "admin";
-        redirectPath = "/admin";
-      } else if (email.includes("faculty")) {
-        role = "faculty";
-        redirectPath = "/faculty";
-      }
-      
-      login(email, role);
-      navigate(redirectPath);
-      
       toast({
-        title: "Welcome back!",
-        description: "You have successfully logged in.",
+        title: "Login failed",
+        description: error,
+        variant: "destructive",
       });
-    }, 1000);
+      return;
+    }
+
+    setIsLoading(false);
+    toast({
+      title: "Welcome back!",
+      description: "You have successfully logged in.",
+    });
+    
+    // Navigate to student dashboard by default, will be improved later
+    navigate("/student");
   };
 
   return (
@@ -131,16 +147,6 @@ export default function LoginPage() {
                     Create account
                   </Link>
                 </p>
-              </div>
-
-              {/* Demo Accounts */}
-              <div className="mt-8 p-4 rounded-lg bg-muted/50 border border-border">
-                <p className="text-sm font-medium mb-2">Demo Accounts</p>
-                <div className="space-y-1 text-xs text-muted-foreground">
-                  <p>• Student: <span className="font-mono">student@edu.com</span></p>
-                  <p>• Faculty: <span className="font-mono">faculty@edu.com</span></p>
-                  <p>• Admin: <span className="font-mono">admin@edu.com</span></p>
-                </div>
               </div>
             </CardContent>
           </Card>
