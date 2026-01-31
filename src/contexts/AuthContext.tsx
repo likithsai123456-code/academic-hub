@@ -5,7 +5,7 @@ import type { User as SupabaseUser, Session } from "@supabase/supabase-js";
 interface Profile {
   id: string;
   name: string;
-  section_id: string | null;
+  semester_id: string | null;
   year_id: string | null;
 }
 
@@ -18,7 +18,7 @@ interface User {
   email: string;
   name: string;
   role: "student" | "faculty" | "admin";
-  sectionId: string | null;
+  semesterId: string | null;
   yearId: string | null;
 }
 
@@ -43,7 +43,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Fetch profile
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
-        .select("id, name, section_id, year_id")
+        .select("id, name, semester_id, year_id")
         .eq("user_id", supabaseUser.id)
         .maybeSingle();
 
@@ -70,7 +70,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         email: supabaseUser.email || "",
         name: profile?.name || "User",
         role,
-        sectionId: profile?.section_id || null,
+        semesterId: profile?.semester_id || null,
         yearId: profile?.year_id || null,
       };
     } catch (error) {
