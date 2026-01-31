@@ -15,7 +15,7 @@ import { GraduationCap, Mail, Lock, User, Eye, EyeOff, ArrowRight, Building } fr
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
-interface Section {
+interface Semester {
   id: string;
   name: string;
 }
@@ -32,10 +32,10 @@ export default function RegisterPage() {
     password: "",
     confirmPassword: "",
     role: "",
-    sectionId: "",
+    semesterId: "",
     yearId: "",
   });
-  const [sections, setSections] = useState<Section[]>([]);
+  const [semesters, setSemesters] = useState<Semester[]>([]);
   const [years, setYears] = useState<Year[]>([]);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -43,14 +43,14 @@ export default function RegisterPage() {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Fetch sections and years for selection
+    // Fetch semesters and years for selection
     const fetchData = async () => {
-      const [sectionsRes, yearsRes] = await Promise.all([
-        supabase.from("sections").select("id, name").order("name"),
+      const [semestersRes, yearsRes] = await Promise.all([
+        supabase.from("semesters").select("id, name").order("name"),
         supabase.from("years").select("id, name").order("name"),
       ]);
 
-      if (sectionsRes.data) setSections(sectionsRes.data);
+      if (semestersRes.data) setSemesters(semestersRes.data);
       if (yearsRes.data) setYears(yearsRes.data);
     };
 
@@ -97,10 +97,10 @@ export default function RegisterPage() {
       return;
     }
 
-    if (!formData.sectionId || !formData.yearId) {
+    if (!formData.semesterId || !formData.yearId) {
       toast({
-        title: "Section and Year required",
-        description: "Please select your section and year.",
+        title: "Semester and Year required",
+        description: "Please select your semester and year.",
         variant: "destructive",
       });
       return;
@@ -133,7 +133,7 @@ export default function RegisterPage() {
         const { error: profileError } = await supabase.from("profiles").insert({
           user_id: authData.user.id,
           name: formData.name.trim(),
-          section_id: formData.sectionId,
+          semester_id: formData.semesterId,
           year_id: formData.yearId,
         });
 
@@ -297,18 +297,18 @@ export default function RegisterPage() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="section">Section</Label>
+                    <Label htmlFor="semester">Semester</Label>
                     <Select
-                      value={formData.sectionId}
-                      onValueChange={(value) => updateFormData("sectionId", value)}
+                      value={formData.semesterId}
+                      onValueChange={(value) => updateFormData("semesterId", value)}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Select section" />
+                        <SelectValue placeholder="Select semester" />
                       </SelectTrigger>
                       <SelectContent>
-                        {sections.map((section) => (
-                          <SelectItem key={section.id} value={section.id}>
-                            {section.name}
+                        {semesters.map((semester) => (
+                          <SelectItem key={semester.id} value={semester.id}>
+                            {semester.name}
                           </SelectItem>
                         ))}
                       </SelectContent>
