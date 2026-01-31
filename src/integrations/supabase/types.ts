@@ -20,6 +20,7 @@ export type Database = {
           id: string
           name: string
           section_id: string | null
+          semester_id: string | null
           updated_at: string
           user_id: string
           year_id: string | null
@@ -29,6 +30,7 @@ export type Database = {
           id?: string
           name: string
           section_id?: string | null
+          semester_id?: string | null
           updated_at?: string
           user_id: string
           year_id?: string | null
@@ -38,6 +40,7 @@ export type Database = {
           id?: string
           name?: string
           section_id?: string | null
+          semester_id?: string | null
           updated_at?: string
           user_id?: string
           year_id?: string | null
@@ -48,6 +51,13 @@ export type Database = {
             columns: ["section_id"]
             isOneToOne: false
             referencedRelation: "sections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_semester_id_fkey"
+            columns: ["semester_id"]
+            isOneToOne: false
+            referencedRelation: "semesters"
             referencedColumns: ["id"]
           },
           {
@@ -77,34 +87,52 @@ export type Database = {
         }
         Relationships: []
       }
+      semesters: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       subjects: {
         Row: {
           created_at: string
           id: string
           name: string
-          section_id: string
+          semester_id: string | null
           year_id: string
         }
         Insert: {
           created_at?: string
           id?: string
           name: string
-          section_id: string
+          semester_id?: string | null
           year_id: string
         }
         Update: {
           created_at?: string
           id?: string
           name?: string
-          section_id?: string
+          semester_id?: string | null
           year_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "subjects_section_id_fkey"
-            columns: ["section_id"]
+            foreignKeyName: "subjects_semester_id_fkey"
+            columns: ["semester_id"]
             isOneToOne: false
-            referencedRelation: "sections"
+            referencedRelation: "semesters"
             referencedColumns: ["id"]
           },
           {
