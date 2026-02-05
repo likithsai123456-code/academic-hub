@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { GraduationCap, Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -44,6 +45,26 @@ export default function LoginPage() {
 
     if (error) {
       setIsLoading(false);
+      
+      // Handle specific error cases
+      if (error.includes("Email not confirmed")) {
+        toast({
+          title: "Email not verified",
+          description: "Please check your email and click the confirmation link before logging in.",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      if (error.includes("Invalid login credentials")) {
+        toast({
+          title: "Invalid credentials",
+          description: "The email or password you entered is incorrect. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       toast({
         title: "Login failed",
         description: error,
@@ -52,14 +73,42 @@ export default function LoginPage() {
       return;
     }
 
-    setIsLoading(false);
-    toast({
-      title: "Welcome back!",
-      description: "You have successfully logged in.",
-    });
-    
-    // Navigate to student dashboard by default, will be improved later
-    navigate("/student");
+    // Fetch user role and navigate to appropriate dashboard
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (user) {
+        const { data: userRole } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        const role = userRole?.role || "student";
+
+        toast({
+          title: "Welcome back!",
+          description: "You have successfully logged in.",
+        });
+
+        // Navigate based on role
+        switch (role) {
+          case "admin":
+            navigate("/admin");
+            break;
+          case "faculty":
+            navigate("/faculty");
+            break;
+          default:
+            navigate("/student");
+        }
+      }
+    } catch (err) {
+      console.error("Error fetching user role:", err);
+      navigate("/student");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
