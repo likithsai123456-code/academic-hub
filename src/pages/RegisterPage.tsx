@@ -25,6 +25,20 @@ interface Year {
   name: string;
 }
 
+// Maps year name to valid semester numbers
+const YEAR_SEMESTER_MAP: Record<string, number[]> = {
+  "1st Year": [1, 2],
+  "2nd Year": [3, 4],
+  "3rd Year": [5, 6],
+  "4th Year": [7, 8],
+};
+
+// Helper to extract semester number from name like "1st Semester" -> 1
+const getSemesterNumber = (name: string): number => {
+  const match = name.match(/^(\d+)/);
+  return match ? parseInt(match[1], 10) : 0;
+};
+
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
     name: "",
@@ -56,6 +70,24 @@ export default function RegisterPage() {
 
     fetchData();
   }, []);
+
+  // Get valid semesters based on selected year
+  const getFilteredSemesters = () => {
+    if (!formData.yearId) return [];
+    
+    const selectedYear = years.find((y) => y.id === formData.yearId);
+    if (!selectedYear) return [];
+    
+    const validSemesterNumbers = YEAR_SEMESTER_MAP[selectedYear.name] || [];
+    return semesters.filter((s) => validSemesterNumbers.includes(getSemesterNumber(s.name)));
+  };
+
+  const filteredSemesters = getFilteredSemesters();
+
+  // Reset semester when year changes
+  const handleYearChange = (value: string) => {
+    setFormData((prev) => ({ ...prev, yearId: value, semesterId: "" }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -297,28 +329,10 @@ export default function RegisterPage() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="semester">Semester</Label>
-                    <Select
-                      value={formData.semesterId}
-                      onValueChange={(value) => updateFormData("semesterId", value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select semester" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {semesters.map((semester) => (
-                          <SelectItem key={semester.id} value={semester.id}>
-                            {semester.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
                     <Label htmlFor="year">Year</Label>
                     <Select
                       value={formData.yearId}
-                      onValueChange={(value) => updateFormData("yearId", value)}
+                      onValueChange={handleYearChange}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select year" />
@@ -327,6 +341,25 @@ export default function RegisterPage() {
                         {years.map((year) => (
                           <SelectItem key={year.id} value={year.id}>
                             {year.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="semester">Semester</Label>
+                    <Select
+                      value={formData.semesterId}
+                      onValueChange={(value) => updateFormData("semesterId", value)}
+                      disabled={!formData.yearId}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder={formData.yearId ? "Select semester" : "Select year first"} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {filteredSemesters.map((semester) => (
+                          <SelectItem key={semester.id} value={semester.id}>
+                            {semester.name}
                           </SelectItem>
                         ))}
                       </SelectContent>
