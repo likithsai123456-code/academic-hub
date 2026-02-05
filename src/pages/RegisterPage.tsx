@@ -92,6 +92,9 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Prevent double submissions
+    if (isLoading) return;
+
     // Validation
     if (!formData.name.trim()) {
       toast({
@@ -151,6 +154,28 @@ export default function RegisterPage() {
       });
 
       if (authError) {
+        // Handle rate limit errors
+        if (authError.message.includes("rate limit") || authError.status === 429) {
+          toast({
+            title: "Too many attempts",
+            description: "Please wait a minute before trying again. If you already registered, check your email for a confirmation link.",
+            variant: "destructive",
+          });
+          setIsLoading(false);
+          return;
+        }
+
+        // Handle existing user
+        if (authError.message.includes("already registered") || authError.message.includes("User already registered")) {
+          toast({
+            title: "Account exists",
+            description: "This email is already registered. Please log in or check your email for a confirmation link.",
+            variant: "destructive",
+          });
+          setIsLoading(false);
+          return;
+        }
+
         toast({
           title: "Registration failed",
           description: authError.message,
@@ -414,6 +439,14 @@ export default function RegisterPage() {
                   {isLoading ? "Creating account..." : "Create Account"}
                   {!isLoading && <ArrowRight className="h-5 w-5 ml-2" />}
                 </Button>
+
+                <p className="text-xs text-muted-foreground text-center">
+                  Already registered? Check your email for a confirmation link, then{" "}
+                  <Link to="/login" className="text-primary hover:underline">
+                    sign in
+                  </Link>
+                  .
+                </p>
               </form>
 
               <div className="mt-6 text-center">
