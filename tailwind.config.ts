@@ -87,10 +87,22 @@ export default {
   				'sans-serif'
   			],
   			heading: [
-  				'Inter',
-  				'system-ui',
-  				'-apple-system',
-  				'sans-serif'
+  				'EB Garamond',
+  				'ui-serif',
+  				'Georgia',
+  				'Cambria',
+  				'Times New Roman',
+  				'Times',
+  				'serif'
+  			],
+  			serif: [
+  				'EB Garamond',
+  				'ui-serif',
+  				'Georgia',
+  				'Cambria',
+  				'Times New Roman',
+  				'Times',
+  				'serif'
   			],
   			mono: [
   				'Fira Code',
@@ -102,15 +114,6 @@ export default {
   				'Liberation Mono',
   				'Courier New',
   				'monospace'
-  			],
-  			serif: [
-  				'EB Garamond',
-  				'ui-serif',
-  				'Georgia',
-  				'Cambria',
-  				'Times New Roman',
-  				'Times',
-  				'serif'
   			]
   		},
   		keyframes: {
