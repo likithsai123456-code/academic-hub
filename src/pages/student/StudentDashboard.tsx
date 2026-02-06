@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { FileText, Upload, CheckSquare, Clock, Calendar, TrendingUp } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const stats = [
   {
@@ -93,6 +94,7 @@ const upcomingDeadlines = [
 
 export default function StudentDashboard() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const firstName = user?.name?.split(" ")[0] || "Student";
 
   return (
@@ -120,6 +122,7 @@ export default function StudentDashboard() {
             title="Pending Assignments"
             assignments={pendingAssignments}
             emptyMessage="No pending assignments. Great job!"
+            onViewAll={() => navigate("/student/assignments")}
           />
 
           <AssignmentList
@@ -127,6 +130,7 @@ export default function StudentDashboard() {
             assignments={recentResults}
             showGrade
             emptyMessage="No evaluated assignments yet."
+            onViewAll={() => navigate("/student/results")}
           />
         </div>
 
@@ -174,7 +178,8 @@ export default function StudentDashboard() {
                 {upcomingDeadlines.map((deadline) => (
                   <div
                     key={deadline.title}
-                    className="flex items-center justify-between p-3 rounded-lg bg-muted/50"
+                    className="flex items-center justify-between p-3 rounded-lg bg-muted/50 cursor-pointer hover:bg-muted transition-colors"
+                    onClick={() => navigate("/student/assignments")}
                   >
                     <div>
                       <p className="font-medium text-sm">{deadline.title}</p>
@@ -194,7 +199,11 @@ export default function StudentDashboard() {
                   </div>
                 ))}
               </div>
-              <Button variant="ghost" className="w-full mt-4">
+              <Button 
+                variant="ghost" 
+                className="w-full mt-4"
+                onClick={() => navigate("/student/assignments")}
+              >
                 View All Deadlines
               </Button>
             </CardContent>

@@ -8,6 +8,11 @@ import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import StudentDashboard from "./pages/student/StudentDashboard";
+import StudentAssignments from "./pages/student/StudentAssignments";
+import StudentSubmissions from "./pages/student/StudentSubmissions";
+import StudentResults from "./pages/student/StudentResults";
+import StudentNotifications from "./pages/student/StudentNotifications";
+import StudentProfile from "./pages/student/StudentProfile";
 import FacultyDashboard from "./pages/faculty/FacultyDashboard";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import NotFound from "./pages/NotFound";
@@ -28,11 +33,11 @@ const App = () => (
             
             {/* Student Routes */}
             <Route path="/student" element={<StudentDashboard />} />
-            <Route path="/student/assignments" element={<StudentDashboard />} />
-            <Route path="/student/submissions" element={<StudentDashboard />} />
-            <Route path="/student/results" element={<StudentDashboard />} />
-            <Route path="/student/notifications" element={<StudentDashboard />} />
-            <Route path="/student/profile" element={<StudentDashboard />} />
+            <Route path="/student/assignments" element={<StudentAssignments />} />
+            <Route path="/student/submissions" element={<StudentSubmissions />} />
+            <Route path="/student/results" element={<StudentResults />} />
+            <Route path="/student/notifications" element={<StudentNotifications />} />
+            <Route path="/student/profile" element={<StudentProfile />} />
             
             {/* Faculty Routes */}
             <Route path="/faculty" element={<FacultyDashboard />} />
