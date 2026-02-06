@@ -3,6 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, FileText, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 interface Assignment {
   id: string;
@@ -32,6 +34,16 @@ export function AssignmentCard({
   showGrade = false,
 }: AssignmentCardProps) {
   const status = statusConfig[assignment.status];
+
+  const handleView = () => {
+    if (onView) {
+      onView();
+    } else {
+      toast.info(`Opening "${assignment.title}"`, {
+        description: `Course: ${assignment.course}`,
+      });
+    }
+  };
 
   return (
     <Card variant="interactive" className="group">
@@ -64,7 +76,7 @@ export function AssignmentCard({
             variant="ghost"
             size="sm"
             className="opacity-0 group-hover:opacity-100 transition-opacity"
-            onClick={onView}
+            onClick={handleView}
           >
             View
             <ChevronRight className="h-4 w-4 ml-1" />
@@ -80,6 +92,7 @@ interface AssignmentListProps {
   title?: string;
   showGrade?: boolean;
   emptyMessage?: string;
+  onViewAll?: () => void;
 }
 
 export function AssignmentList({
@@ -87,13 +100,24 @@ export function AssignmentList({
   title,
   showGrade = false,
   emptyMessage = "No assignments found",
+  onViewAll,
 }: AssignmentListProps) {
+  const navigate = useNavigate();
+
+  const handleViewAll = () => {
+    if (onViewAll) {
+      onViewAll();
+    } else {
+      navigate("/student/assignments");
+    }
+  };
+
   return (
     <div className="space-y-4">
       {title && (
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold">{title}</h3>
-          <Button variant="ghost" size="sm">
+          <Button variant="ghost" size="sm" onClick={handleViewAll}>
             View All
             <ChevronRight className="h-4 w-4 ml-1" />
           </Button>

@@ -1,5 +1,10 @@
 import { Link } from "react-router-dom";
 import { GraduationCap, Github, Twitter, Linkedin, Mail } from "lucide-react";
+import { toast } from "sonner";
+
+const handleExternalLink = (name: string) => {
+  toast.info(`${name} page coming soon!`);
+};
 
 export function Footer() {
   return (
@@ -19,16 +24,34 @@ export function Footer() {
               evaluation platform designed for modern educational institutions.
             </p>
             <div className="flex gap-4">
-              <a href="#" className="text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors">
+              <a 
+                href="https://twitter.com" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors"
+              >
                 <Twitter className="h-5 w-5" />
               </a>
-              <a href="#" className="text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors">
+              <a 
+                href="https://github.com" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors"
+              >
                 <Github className="h-5 w-5" />
               </a>
-              <a href="#" className="text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors">
+              <a 
+                href="https://linkedin.com" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors"
+              >
                 <Linkedin className="h-5 w-5" />
               </a>
-              <a href="#" className="text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors">
+              <a 
+                href="mailto:contact@eduportal.com"
+                className="text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors"
+              >
                 <Mail className="h-5 w-5" />
               </a>
             </div>
@@ -49,14 +72,20 @@ export function Footer() {
                 </a>
               </li>
               <li>
-                <a href="#" className="text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors">
+                <button 
+                  onClick={() => handleExternalLink("Integrations")}
+                  className="text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors"
+                >
                   Integrations
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#" className="text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors">
+                <button 
+                  onClick={() => handleExternalLink("Updates")}
+                  className="text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors"
+                >
                   Updates
-                </a>
+                </button>
               </li>
             </ul>
           </div>
@@ -66,19 +95,28 @@ export function Footer() {
             <h4 className="font-semibold text-sidebar-foreground">Company</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <a href="#" className="text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors">
+                <button 
+                  onClick={() => handleExternalLink("About")}
+                  className="text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors"
+                >
                   About
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#" className="text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors">
+                <button 
+                  onClick={() => handleExternalLink("Blog")}
+                  className="text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors"
+                >
                   Blog
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#" className="text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors">
+                <button 
+                  onClick={() => handleExternalLink("Careers")}
+                  className="text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors"
+                >
                   Careers
-                </a>
+                </button>
               </li>
               <li>
                 <a href="#contact" className="text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors">
@@ -93,24 +131,36 @@ export function Footer() {
             <h4 className="font-semibold text-sidebar-foreground">Support</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <a href="#" className="text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors">
+                <button 
+                  onClick={() => handleExternalLink("Help Center")}
+                  className="text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors"
+                >
                   Help Center
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#" className="text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors">
+                <button 
+                  onClick={() => handleExternalLink("Privacy Policy")}
+                  className="text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors"
+                >
                   Privacy Policy
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#" className="text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors">
+                <button 
+                  onClick={() => handleExternalLink("Terms of Service")}
+                  className="text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors"
+                >
                   Terms of Service
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#" className="text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors">
+                <button 
+                  onClick={() => handleExternalLink("Status")}
+                  className="text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors"
+                >
                   Status
-                </a>
+                </button>
               </li>
             </ul>
           </div>
