@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, FileText, ChevronRight, BookOpen, User } from "lucide-react";
+import { Calendar, FileText, ChevronRight, BookOpen, User, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -45,6 +45,7 @@ export function AssignmentCard({
   showGrade = false,
 }: AssignmentCardProps) {
   const status = statusConfig[assignment.status];
+  const navigate = useNavigate();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const handleView = () => {
@@ -53,6 +54,17 @@ export function AssignmentCard({
     } else {
       setIsDialogOpen(true);
     }
+  };
+
+  const handleDownload = () => {
+    toast.success("Download started", {
+      description: `Downloading assignment: ${assignment.title}`,
+    });
+  };
+
+  const handleSubmit = () => {
+    setIsDialogOpen(false);
+    navigate("/student/submissions");
   };
 
   return (
@@ -149,11 +161,12 @@ export function AssignmentCard({
             <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
               Close
             </Button>
+            <Button variant="secondary" onClick={handleDownload}>
+              <Download className="h-4 w-4 mr-1" />
+              Download
+            </Button>
             {assignment.status === "pending" || assignment.status === "overdue" ? (
-              <Button onClick={() => {
-                setIsDialogOpen(false);
-                toast.success("Redirecting to submission page...");
-              }}>
+              <Button onClick={handleSubmit}>
                 Submit Assignment
               </Button>
             ) : null}
