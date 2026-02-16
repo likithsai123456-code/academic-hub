@@ -16,6 +16,7 @@ import {
   Calendar,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const stats = [
   {
@@ -112,6 +113,7 @@ const assignments = [
 
 export default function FacultyDashboard() {
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <DashboardLayout role="faculty" userName={user?.name}>
@@ -123,7 +125,7 @@ export default function FacultyDashboard() {
             Manage your assignments and evaluate student submissions.
           </p>
         </div>
-        <Button size="lg">
+        <Button size="lg" onClick={() => navigate("/faculty/assignments")}>
           <PlusCircle className="h-5 w-5 mr-2" />
           Create Assignment
         </Button>
@@ -240,7 +242,7 @@ export default function FacultyDashboard() {
               <CardTitle className="text-base">Quick Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              <Button variant="outline" className="w-full justify-start">
+              <Button variant="outline" className="w-full justify-start" onClick={() => navigate("/faculty/assignments")}>
                 <PlusCircle className="h-4 w-4 mr-2" />
                 New Assignment
               </Button>
