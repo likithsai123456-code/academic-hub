@@ -14,6 +14,86 @@ export type Database = {
   }
   public: {
     Tables: {
+      assignments: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          due_date: string
+          file_name: string | null
+          file_url: string | null
+          id: string
+          instructions: string | null
+          section_id: string | null
+          semester_id: string | null
+          subject_id: string | null
+          title: string
+          updated_at: string
+          year_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          due_date: string
+          file_name?: string | null
+          file_url?: string | null
+          id?: string
+          instructions?: string | null
+          section_id?: string | null
+          semester_id?: string | null
+          subject_id?: string | null
+          title: string
+          updated_at?: string
+          year_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          due_date?: string
+          file_name?: string | null
+          file_url?: string | null
+          id?: string
+          instructions?: string | null
+          section_id?: string | null
+          semester_id?: string | null
+          subject_id?: string | null
+          title?: string
+          updated_at?: string
+          year_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assignments_section_id_fkey"
+            columns: ["section_id"]
+            isOneToOne: false
+            referencedRelation: "sections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assignments_semester_id_fkey"
+            columns: ["semester_id"]
+            isOneToOne: false
+            referencedRelation: "semesters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assignments_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assignments_year_id_fkey"
+            columns: ["year_id"]
+            isOneToOne: false
+            referencedRelation: "years"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -140,6 +220,62 @@ export type Database = {
             columns: ["year_id"]
             isOneToOne: false
             referencedRelation: "years"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      submissions: {
+        Row: {
+          assignment_id: string
+          created_at: string
+          evaluated_at: string | null
+          feedback: string | null
+          file_name: string
+          file_size: string | null
+          file_url: string
+          grade: string | null
+          id: string
+          status: string
+          student_id: string
+          submitted_at: string
+          updated_at: string
+        }
+        Insert: {
+          assignment_id: string
+          created_at?: string
+          evaluated_at?: string | null
+          feedback?: string | null
+          file_name: string
+          file_size?: string | null
+          file_url: string
+          grade?: string | null
+          id?: string
+          status?: string
+          student_id: string
+          submitted_at?: string
+          updated_at?: string
+        }
+        Update: {
+          assignment_id?: string
+          created_at?: string
+          evaluated_at?: string | null
+          feedback?: string | null
+          file_name?: string
+          file_size?: string | null
+          file_url?: string
+          grade?: string | null
+          id?: string
+          status?: string
+          student_id?: string
+          submitted_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "submissions_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: false
+            referencedRelation: "assignments"
             referencedColumns: ["id"]
           },
         ]

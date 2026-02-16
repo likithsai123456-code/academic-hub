@@ -14,6 +14,7 @@ import StudentResults from "./pages/student/StudentResults";
 import StudentNotifications from "./pages/student/StudentNotifications";
 import StudentProfile from "./pages/student/StudentProfile";
 import FacultyDashboard from "./pages/faculty/FacultyDashboard";
+import FacultyAssignments from "./pages/faculty/FacultyAssignments";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import NotFound from "./pages/NotFound";
 
@@ -41,7 +42,7 @@ const App = () => (
             
             {/* Faculty Routes */}
             <Route path="/faculty" element={<FacultyDashboard />} />
-            <Route path="/faculty/assignments" element={<FacultyDashboard />} />
+            <Route path="/faculty/assignments" element={<FacultyAssignments />} />
             <Route path="/faculty/submissions" element={<FacultyDashboard />} />
             <Route path="/faculty/evaluate" element={<FacultyDashboard />} />
             <Route path="/faculty/reports" element={<FacultyDashboard />} />
