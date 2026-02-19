@@ -22,7 +22,8 @@ export default function FacultyAssignments() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [instructions, setInstructions] = useState("");
-  const [dueDate, setDueDate] = useState("");
+  const [dueDatePart, setDueDatePart] = useState("");
+  const [dueTimePart, setDueTimePart] = useState("23:59");
   const [selectedSubject, setSelectedSubject] = useState("");
   const [selectedYear, setSelectedYear] = useState("");
   const [selectedSemester, setSelectedSemester] = useState("");
@@ -79,7 +80,7 @@ export default function FacultyAssignments() {
   });
 
   const handleCreate = async () => {
-    if (!title || !dueDate || !selectedYear || !selectedSemester) {
+    if (!title || !dueDatePart || !selectedYear || !selectedSemester) {
       toast.error("Please fill all required fields");
       return;
     }
@@ -113,7 +114,7 @@ export default function FacultyAssignments() {
         created_by: user!.id,
         year_id: selectedYear,
         semester_id: selectedSemester,
-        due_date: new Date(dueDate).toISOString(),
+        due_date: new Date(`${dueDatePart}T${dueTimePart}`).toISOString(),
         file_url: fileUrl,
         file_name: fileName,
       });
@@ -146,7 +147,8 @@ export default function FacultyAssignments() {
     setTitle("");
     setDescription("");
     setInstructions("");
-    setDueDate("");
+    setDueDatePart("");
+    setDueTimePart("23:59");
     setSelectedSubject("");
     setSelectedYear("");
     setSelectedSemester("");
@@ -275,9 +277,15 @@ export default function FacultyAssignments() {
                 </SelectContent>
               </Select>
             </div>
-            <div>
-              <Label>Due Date *</Label>
-              <Input type="datetime-local" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Due Date *</Label>
+                <Input type="date" value={dueDatePart} onChange={(e) => setDueDatePart(e.target.value)} />
+              </div>
+              <div>
+                <Label>Due Time *</Label>
+                <Input type="time" value={dueTimePart} onChange={(e) => setDueTimePart(e.target.value)} />
+              </div>
             </div>
             <div>
               <Label>Attachment (optional)</Label>
