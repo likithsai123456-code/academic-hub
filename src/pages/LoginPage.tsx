@@ -14,12 +14,14 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
   const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMessage("");
 
     if (!email.trim()) {
       toast({
@@ -48,28 +50,16 @@ export default function LoginPage() {
       
       // Handle specific error cases
       if (error.includes("Email not confirmed")) {
-        toast({
-          title: "Email not verified",
-          description: "Please check your email and click the confirmation link before logging in.",
-          variant: "destructive",
-        });
+        setErrorMessage("Please check your email and click the confirmation link before logging in.");
         return;
       }
       
       if (error.includes("Invalid login credentials")) {
-        toast({
-          title: "Invalid credentials",
-          description: "The email or password you entered is incorrect. Please try again.",
-          variant: "destructive",
-        });
+        setErrorMessage("Invalid email or password. Please try again.");
         return;
       }
 
-      toast({
-        title: "Login failed",
-        description: error,
-        variant: "destructive",
-      });
+      setErrorMessage(error);
       return;
     }
 
@@ -182,6 +172,12 @@ export default function LoginPage() {
                     </button>
                   </div>
                 </div>
+
+                {errorMessage && (
+                  <div className="rounded-md bg-destructive/10 border border-destructive/30 p-3 text-sm text-destructive">
+                    {errorMessage}
+                  </div>
+                )}
 
                 <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
                   {isLoading ? "Signing in..." : "Sign In"}
