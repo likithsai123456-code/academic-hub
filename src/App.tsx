@@ -7,6 +7,8 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 import StudentDashboard from "./pages/student/StudentDashboard";
 import StudentAssignments from "./pages/student/StudentAssignments";
 import StudentSubmissions from "./pages/student/StudentSubmissions";
@@ -31,7 +33,9 @@ const App = () => (
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
-            
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
+
             {/* Student Routes */}
             <Route path="/student" element={<StudentDashboard />} />
             <Route path="/student/assignments" element={<StudentAssignments />} />
