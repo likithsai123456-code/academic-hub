@@ -9,111 +9,98 @@ import {
   Upload,
   CheckSquare,
   Clock,
-  Users,
   PlusCircle,
-  BarChart3,
   ChevronRight,
   Calendar,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
-
-const stats = [
-  {
-    title: "Total Assignments",
-    value: 24,
-    icon: FileText,
-    description: "Created this semester",
-    trend: { value: 12, isPositive: true },
-  },
-  {
-    title: "Submissions",
-    value: 156,
-    icon: Upload,
-    description: "Received submissions",
-  },
-  {
-    title: "Pending Evaluation",
-    value: 32,
-    icon: Clock,
-    description: "Awaiting your review",
-  },
-  {
-    title: "Students",
-    value: 128,
-    icon: Users,
-    description: "Enrolled in your courses",
-  },
-];
-
-const recentSubmissions = [
-  {
-    id: "1",
-    student: "Emily Chen",
-    assignment: "Data Structures Lab Report",
-    course: "CS301",
-    submittedAt: "2 hours ago",
-    status: "pending",
-  },
-  {
-    id: "2",
-    student: "Michael Brown",
-    assignment: "Algorithm Analysis Paper",
-    course: "CS401",
-    submittedAt: "4 hours ago",
-    status: "pending",
-  },
-  {
-    id: "3",
-    student: "Sarah Wilson",
-    assignment: "Database Design Project",
-    course: "CS302",
-    submittedAt: "6 hours ago",
-    status: "pending",
-  },
-  {
-    id: "4",
-    student: "David Lee",
-    assignment: "Data Structures Lab Report",
-    course: "CS301",
-    submittedAt: "8 hours ago",
-    status: "pending",
-  },
-];
-
-const assignments = [
-  {
-    id: "1",
-    title: "Data Structures Lab Report",
-    course: "CS301 - Data Structures",
-    dueDate: "Feb 2, 2026",
-    submissions: 45,
-    total: 52,
-    evaluated: 12,
-  },
-  {
-    id: "2",
-    title: "Algorithm Analysis Paper",
-    course: "CS401 - Algorithms",
-    dueDate: "Feb 5, 2026",
-    submissions: 38,
-    total: 48,
-    evaluated: 0,
-  },
-  {
-    id: "3",
-    title: "Database Design Project",
-    course: "CS302 - Database Systems",
-    dueDate: "Feb 10, 2026",
-    submissions: 28,
-    total: 50,
-    evaluated: 0,
-  },
-];
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
+import { format, formatDistanceToNow } from "date-fns";
 
 export default function FacultyDashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  // Fetch faculty's assignments
+  const { data: assignments } = useQuery({
+    queryKey: ["faculty-dash-assignments", user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("assignments")
+        .select("*, subjects(name)")
+        .eq("created_by", user!.id)
+        .order("due_date", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user?.id,
+  });
+
+  // Fetch submissions for faculty's assignments
+  const { data: submissions } = useQuery({
+    queryKey: ["faculty-dash-submissions", user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("submissions")
+        .select("*, assignments(title, subjects(name))")
+        .order("submitted_at", { ascending: false });
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!user?.id,
+  });
+
+  const totalAssignments = assignments?.length || 0;
+  const totalSubmissions = submissions?.length || 0;
+  const pendingEvaluation = submissions?.filter((s: any) => s.status !== "evaluated").length || 0;
+  const evaluatedCount = submissions?.filter((s: any) => s.status === "evaluated").length || 0;
+
+  const stats = [
+    {
+      title: "Total Assignments",
+      value: totalAssignments,
+      icon: FileText,
+      description: "Created by you",
+    },
+    {
+      title: "Submissions",
+      value: totalSubmissions,
+      icon: Upload,
+      description: "Received submissions",
+    },
+    {
+      title: "Pending Evaluation",
+      value: pendingEvaluation,
+      icon: Clock,
+      description: "Awaiting your review",
+    },
+    {
+      title: "Evaluated",
+      value: evaluatedCount,
+      icon: CheckSquare,
+      description: "Graded submissions",
+    },
+  ];
+
+  const recentSubmissions = (submissions || []).slice(0, 4);
+
+  // Active assignments with submission counts
+  const activeAssignments = (assignments || []).slice(0, 3).map((a: any) => {
+    const assignSubs = (submissions || []).filter((s: any) => s.assignment_id === a.id);
+    const evalCount = assignSubs.filter((s: any) => s.status === "evaluated").length;
+    return {
+      id: a.id,
+      title: a.title,
+      course: a.subjects?.name || "General",
+      dueDate: format(new Date(a.due_date), "MMM d, yyyy"),
+      submissions: assignSubs.length,
+      evaluated: evalCount,
+    };
+  });
+
+  const evalPct = totalSubmissions > 0 ? Math.round((evaluatedCount / totalSubmissions) * 100) : 0;
 
   return (
     <DashboardLayout role="faculty" userName={user?.name}>
@@ -148,36 +135,44 @@ export default function FacultyDashboard() {
                 <CardTitle className="text-lg">Recent Submissions</CardTitle>
                 <CardDescription>Latest student submissions awaiting review</CardDescription>
               </div>
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" onClick={() => navigate("/faculty/assignments")}>
                 View All
                 <ChevronRight className="h-4 w-4 ml-1" />
               </Button>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {recentSubmissions.map((submission) => (
-                  <div
-                    key={submission.id}
-                    className="flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-muted/50 transition-colors"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary font-semibold">
-                        {submission.student.split(" ").map((n) => n[0]).join("")}
+              {recentSubmissions.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-8">No submissions yet.</p>
+              ) : (
+                <div className="space-y-4">
+                  {recentSubmissions.map((submission: any) => (
+                    <div
+                      key={submission.id}
+                      className="flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-muted/50 transition-colors"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary font-semibold">
+                          <Upload className="h-4 w-4" />
+                        </div>
+                        <div>
+                          <p className="font-medium">{submission.assignments?.title || "Assignment"}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {submission.assignments?.subjects?.name || ""}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-medium">{submission.student}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {submission.assignment} • {submission.course}
-                        </p>
+                      <div className="flex items-center gap-4">
+                        <span className="text-sm text-muted-foreground">
+                          {formatDistanceToNow(new Date(submission.submitted_at), { addSuffix: true })}
+                        </span>
+                        <Badge variant={submission.status === "evaluated" ? "evaluated" : "pending"}>
+                          {submission.status === "evaluated" ? "Evaluated" : "Pending"}
+                        </Badge>
                       </div>
                     </div>
-                    <div className="flex items-center gap-4">
-                      <span className="text-sm text-muted-foreground">{submission.submittedAt}</span>
-                      <Button size="sm">Evaluate</Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
 
@@ -188,48 +183,50 @@ export default function FacultyDashboard() {
                 <CardTitle className="text-lg">Active Assignments</CardTitle>
                 <CardDescription>Track submission and evaluation progress</CardDescription>
               </div>
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" onClick={() => navigate("/faculty/assignments")}>
                 Manage
                 <ChevronRight className="h-4 w-4 ml-1" />
               </Button>
             </CardHeader>
             <CardContent>
-              <div className="space-y-6">
-                {assignments.map((assignment) => (
-                  <div key={assignment.id} className="space-y-3">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <p className="font-medium">{assignment.title}</p>
-                        <p className="text-sm text-muted-foreground">{assignment.course}</p>
+              {activeAssignments.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-8">No assignments created yet.</p>
+              ) : (
+                <div className="space-y-6">
+                  {activeAssignments.map((assignment: any) => (
+                    <div key={assignment.id} className="space-y-3">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <p className="font-medium">{assignment.title}</p>
+                          <p className="text-sm text-muted-foreground">{assignment.course}</p>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm">
+                          <Calendar className="h-4 w-4 text-muted-foreground" />
+                          <span>{assignment.dueDate}</span>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <Calendar className="h-4 w-4 text-muted-foreground" />
-                        <span>{assignment.dueDate}</span>
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-muted-foreground">Submissions</span>
+                          <span className="font-medium">{assignment.submissions}</span>
+                        </div>
+                        <Progress
+                          value={assignment.submissions > 0 ? 100 : 0}
+                          className="h-2"
+                        />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <Badge variant={assignment.evaluated > 0 ? "submitted" : "pending"}>
+                          {assignment.evaluated} Evaluated
+                        </Badge>
+                        <Button variant="outline" size="sm" onClick={() => navigate("/faculty/assignments")}>
+                          View Details
+                        </Button>
                       </div>
                     </div>
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">Submissions</span>
-                        <span className="font-medium">
-                          {assignment.submissions}/{assignment.total}
-                        </span>
-                      </div>
-                      <Progress
-                        value={(assignment.submissions / assignment.total) * 100}
-                        className="h-2"
-                      />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <Badge variant={assignment.evaluated > 0 ? "submitted" : "pending"}>
-                        {assignment.evaluated} Evaluated
-                      </Badge>
-                      <Button variant="outline" size="sm">
-                        View Details
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -246,13 +243,9 @@ export default function FacultyDashboard() {
                 <PlusCircle className="h-4 w-4 mr-2" />
                 New Assignment
               </Button>
-              <Button variant="outline" className="w-full justify-start">
+              <Button variant="outline" className="w-full justify-start" onClick={() => navigate("/faculty/assignments")}>
                 <CheckSquare className="h-4 w-4 mr-2" />
-                Bulk Evaluate
-              </Button>
-              <Button variant="outline" className="w-full justify-start">
-                <BarChart3 className="h-4 w-4 mr-2" />
-                Generate Report
+                View Submissions
               </Button>
             </CardContent>
           </Card>
@@ -262,57 +255,25 @@ export default function FacultyDashboard() {
             <CardHeader>
               <CardTitle className="text-base flex items-center gap-2">
                 <CheckSquare className="h-5 w-5 text-success" />
-                This Week's Progress
+                Evaluation Progress
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
                 <div className="flex items-center justify-between text-sm mb-2">
                   <span>Evaluations Completed</span>
-                  <span className="font-medium">68%</span>
+                  <span className="font-medium">{evalPct}%</span>
                 </div>
-                <Progress value={68} className="h-2" />
+                <Progress value={evalPct} className="h-2" />
               </div>
               <div className="grid grid-cols-2 gap-4 text-center pt-4 border-t">
                 <div>
-                  <p className="text-2xl font-bold text-success">124</p>
+                  <p className="text-2xl font-bold text-success">{evaluatedCount}</p>
                   <p className="text-xs text-muted-foreground">Evaluated</p>
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-warning">32</p>
+                  <p className="text-2xl font-bold text-warning">{pendingEvaluation}</p>
                   <p className="text-xs text-muted-foreground">Pending</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Course Overview */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Your Courses</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                  <div>
-                    <p className="font-medium text-sm">CS301</p>
-                    <p className="text-xs text-muted-foreground">Data Structures</p>
-                  </div>
-                  <Badge variant="secondary">52 students</Badge>
-                </div>
-                <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                  <div>
-                    <p className="font-medium text-sm">CS401</p>
-                    <p className="text-xs text-muted-foreground">Algorithms</p>
-                  </div>
-                  <Badge variant="secondary">48 students</Badge>
-                </div>
-                <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                  <div>
-                    <p className="font-medium text-sm">CS302</p>
-                    <p className="text-xs text-muted-foreground">Databases</p>
-                  </div>
-                  <Badge variant="secondary">50 students</Badge>
                 </div>
               </div>
             </CardContent>
