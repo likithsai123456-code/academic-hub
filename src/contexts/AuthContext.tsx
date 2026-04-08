@@ -83,6 +83,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, currentSession) => {
+        // Handle token refresh failures by clearing state
+        if (event === 'TOKEN_REFRESHED' && !currentSession) {
+          setSession(null);
+          setUser(null);
+          setIsLoading(false);
+          return;
+        }
+
         setSession(currentSession);
         
         if (currentSession?.user) {
@@ -100,7 +108,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     );
 
     // THEN get initial session
-    supabase.auth.getSession().then(async ({ data: { session: initialSession } }) => {
+    supabase.auth.getSession().then(async ({ data: { session: initialSession }, error }) => {
+      if (error) {
+        console.error("Session error:", error);
+        // Clear any stale session data
+        await supabase.auth.signOut();
+        setSession(null);
+        setUser(null);
+        setIsLoading(false);
+        return;
+      }
+
       setSession(initialSession);
       
       if (initialSession?.user) {
