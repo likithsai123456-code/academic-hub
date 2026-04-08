@@ -44,14 +44,12 @@ export default function FacultyDashboard() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("submissions")
-        .select("*, assignments(title, subjects(name)), profiles:student_id(name)")
+        .select("*, assignments(title, subjects(name))")
         .order("submitted_at", { ascending: false });
       if (error) throw error;
-      // Filter to only submissions for this faculty's assignments
-      const assignmentIds = new Set((assignments || []).map((a: any) => a.id));
-      return (data || []).filter((s: any) => assignmentIds.has(s.assignment_id));
+      return data || [];
     },
-    enabled: !!user?.id && !!assignments,
+    enabled: !!user?.id,
   });
 
   const totalAssignments = assignments?.length || 0;
