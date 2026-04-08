@@ -152,16 +152,12 @@ export default function FacultyDashboard() {
                     >
                       <div className="flex items-center gap-4">
                         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary font-semibold">
-                          {(submission.profiles?.name || "S")
-                            .split(" ")
-                            .map((n: string) => n[0])
-                            .join("")
-                            .toUpperCase()}
+                          <Upload className="h-4 w-4" />
                         </div>
                         <div>
-                          <p className="font-medium">{submission.profiles?.name || "Student"}</p>
+                          <p className="font-medium">{submission.assignments?.title || "Assignment"}</p>
                           <p className="text-sm text-muted-foreground">
-                            {submission.assignments?.title || "Assignment"} • {submission.assignments?.subjects?.name || ""}
+                            {submission.assignments?.subjects?.name || ""}
                           </p>
                         </div>
                       </div>
